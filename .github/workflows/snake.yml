@@ -2,8 +2,12 @@ name: Generate contribution snake
 
 on:
   schedule:
-    - cron: "0 0 * * *"
-  workflow_dispatch:
+    - cron: "0 1 * * *"       # раз в сутки (UTC)
+  workflow_dispatch:           # ручной запуск
+  push:                        # автообновление после «ежедневного тика»
+    branches: [ main ]
+    paths:
+      - heartbeat.txt
 
 permissions:
   contents: write
@@ -19,7 +23,6 @@ jobs:
           outputs: |
             dist/snake.svg
             dist/snake-dark.svg?palette=github-dark
-
       - name: Push to output branch
         uses: crazy-max/ghaction-github-pages@v3.1.0
         with:
