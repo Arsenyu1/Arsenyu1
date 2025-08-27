@@ -2,11 +2,12 @@ name: Generate contribution snake
 
 on:
   schedule:
-    - cron: "0 1 * * *"       # раз в сутки (UTC)
-  workflow_dispatch:           # ручной запуск
-  push:                        # автообновление после «ежедневного тика»
+    - cron: "0 1 * * *"       # раз/сутки (UTC)
+  workflow_dispatch:
+  push:                        # генерить после каждого тика
     branches: [ main ]
     paths:
+      - logs/**
       - heartbeat.txt
 
 permissions:
@@ -16,15 +17,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Generate snake SVGs
-        uses: Platane/snk@v3
+      - uses: Platane/snk@v3
         with:
           github_user_name: Arsenyu1
           outputs: |
             dist/snake.svg
             dist/snake-dark.svg?palette=github-dark
-      - name: Push to output branch
-        uses: crazy-max/ghaction-github-pages@v3.1.0
+      - uses: crazy-max/ghaction-github-pages@v3.1.0
         with:
           target_branch: output
           build_dir: dist
