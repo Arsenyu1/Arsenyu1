@@ -2,8 +2,11 @@ name: Generate contribution snake
 
 on:
   schedule:
-    - cron: "0 0 * * *"   # раз в сутки
-  workflow_dispatch:      # можно запустить вручную
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -16,6 +19,7 @@ jobs:
           outputs: |
             dist/snake.svg
             dist/snake-dark.svg?palette=github-dark
+
       - name: Push to output branch
         uses: crazy-max/ghaction-github-pages@v3.1.0
         with:
