@@ -1,18 +1,14 @@
 name: Generate contribution snake
-
 on:
   schedule:
-    - cron: "0 1 * * *"       # раз/сутки (UTC)
+    - cron: "0 1 * * *"      # раз в сутки (UTC)
   workflow_dispatch:
-  push:                        # генерить после каждого тика
+  push:                       # регенерировать после любого "корма"
     branches: [ main ]
     paths:
       - logs/**
-      - heartbeat.txt
-
 permissions:
   contents: write
-
 jobs:
   build:
     runs-on: ubuntu-latest
