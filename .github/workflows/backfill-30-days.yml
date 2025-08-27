@@ -1,0 +1,31 @@
+name: Backfill last 30 days
+on:
+  workflow_dispatch:     # запуск вручную
+permissions:
+  contents: write
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Make backdated commits for last 30 days
+        run: |
+          set -e
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+
+          FILE="pulse.md"   # файл-пульс
+          COUNT=30          # ← сколько дней заполнить
+          TIME="12:00:00"   # время коммита (UTC)
+
+          touch "$FILE"
+          git add "$FILE" || true
+
+          for ((i=0; i<COUNT; i++)); do
+            D=$(date -u -d "$i days ago $TIME" +"%Y-%m-%d %H:%M:%S +0000")
+            echo "$D  backfill $i" >> "$FILE"
+            git add "$FILE"
+            GIT_AUTHOR_DATE="$D" GIT_COMMITTER_DATE="$D" git commit -m "backfill: day -$i"
+          done
+
+          git push
