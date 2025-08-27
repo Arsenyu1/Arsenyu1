@@ -1,0 +1,45 @@
+name: Random sprinkle (one-shot)
+
+on:
+  workflow_dispatch:   # запуск вручную
+
+permissions:
+  contents: write
+
+jobs:
+  sprinkle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Configure identity
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+
+      - name: Create commits on random days
+        env:
+          COUNT: 120          # ← СКОЛЬКО разных дней заполнить (поменяй по вкусу)
+          MIN_DAYS_AGO: 0     # от сегодня
+          MAX_DAYS_AGO: 180   # до 180 дней назад (полгода)
+          TIME: "12:00:00"    # время коммита (UTC)
+        run: |
+          set -e
+          mkdir -p logs
+          # выберем COUNT уникальных дней случайно в диапазоне [MIN..MAX]
+          seq $MIN_DAYS_AGO $MAX_DAYS_AGO | shuf | head -n $COUNT | while read OFFSET; do
+            D=$(date -u -d "$OFFSET days ago $TIME" +"%Y-%m-%d %H:%M:%S +0000")
+            F="logs/${D%% *}.txt"            # файл по дате: logs/YYYY-MM-DD.txt
+            echo "random seed for $D" >> "$F"
+            git add "$F"
+            GIT_AUTHOR_DATE="$D" GIT_COMMITTER_DATE="$D" git commit -m "sprinkle: $D"
+          done
+
+      - name: Push changes
+        run: |
+          git pull --rebase origin main || true
+          git push origin HEAD:main
