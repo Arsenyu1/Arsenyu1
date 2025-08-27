@@ -1,12 +1,12 @@
 name: Generate contribution snake
 on:
   schedule:
-    - cron: "0 1 * * *"      # раз в сутки (UTC)
+    - cron: "0 1 * * *"
   workflow_dispatch:
-  push:                       # регенерировать после любого "корма"
+  push:
     branches: [ main ]
     paths:
-      - logs/**
+      - logs/**           # ← триггерим при наших «рандомных» коммитах
 permissions:
   contents: write
 jobs:
