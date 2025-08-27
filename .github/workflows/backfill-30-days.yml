@@ -15,7 +15,7 @@ jobs:
           git config user.email "${{ github.actor }}@users.noreply.github.com"
 
           FILE="pulse.md"   # файл-пульс
-          COUNT=30          # ← сколько дней заполнить
+          COUNT=45          # ← сколько дней заполнить
           TIME="12:00:00"   # время коммита (UTC)
 
           touch "$FILE"
