@@ -2,7 +2,7 @@ name: Daily random spot
 
 on:
   schedule:
-    - cron: "11 0 * * *"    # один раз в день (UTC)
+    - cron: "11 0 * * *"   # раз в день (UTC)
   workflow_dispatch:
 
 permissions:
@@ -17,11 +17,10 @@ jobs:
           ref: main
           fetch-depth: 0
           persist-credentials: true
-
       - name: Add one random-dated commit
         env:
-          MIN_DAYS_AGO: 0     # от сегодня
-          MAX_DAYS_AGO: 60    # до 60 дней назад (окно рандома)
+          MIN_DAYS_AGO: 0
+          MAX_DAYS_AGO: 364   # ← окно рандома — весь год
           TIME: "12:00:00"
         run: |
           set -e
