@@ -1,0 +1,39 @@
+name: Daily random spot
+
+on:
+  schedule:
+    - cron: "11 0 * * *"    # один раз в день (UTC)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  random:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Add one random-dated commit
+        env:
+          MIN_DAYS_AGO: 0     # от сегодня
+          MAX_DAYS_AGO: 60    # до 60 дней назад (окно рандома)
+          TIME: "12:00:00"
+        run: |
+          set -e
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+
+          OFFSET=$(( RANDOM % (MAX_DAYS_AGO - MIN_DAYS_AGO + 1) + MIN_DAYS_AGO ))
+          D=$(date -u -d "$OFFSET days ago $TIME" +"%Y-%m-%d %H:%M:%S +0000")
+          mkdir -p logs
+          F="logs/${D%% *}.txt"
+          echo "daily random at $D" >> "$F"
+          git add logs
+          GIT_AUTHOR_DATE="$D" GIT_COMMITTER_DATE="$D" git commit -m "daily random: $D" || echo "no changes"
+          git pull --rebase origin main || true
+          git push origin HEAD:main
